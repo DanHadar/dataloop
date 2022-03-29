@@ -52,7 +52,7 @@ class CrawlerCls {
         const nextDepth = depth + 1;
         for (let i = 0; i < links.length; i++) {
           const link = links[i];
-          this.crawleUrl(link, nextDepth);
+          this.crawleUrl(encodeURI(link), nextDepth);
         }
         if (nextDepth === this.maxDepth)
           this.lastLink = links[links.length - 1];
