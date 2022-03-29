@@ -8,5 +8,6 @@ const depth = 1;
 const CrawlerCls = require("./crawler");
 
 const c = new CrawlerCls(baseUrl, depth);
+console.log('Starting process');
 c.crawleUrl();
 // console.log(res);

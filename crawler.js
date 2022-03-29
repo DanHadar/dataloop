@@ -1,4 +1,5 @@
 const Crawler = require("crawler");
+const fs = require("fs");
 
 class CrawlerCls {
   #crawler;
@@ -6,13 +7,12 @@ class CrawlerCls {
     this.#crawler = new Crawler();
     this.baseUrl = url;
     this.maxDepth = depth || 0;
-    this.currentDepth = 0;
     this.finalResult = { results: [] };
-    this.finalLink = false;
+    this.lastLink = "";
   }
 
-  crawleUrl = (url = this.baseUrl, depth = this.currentDepth) => {
-    console.log(`Starting Crawle ${this.baseUrl}`);
+  crawleUrl = (url = this.baseUrl, depth = 0) => {
+    // console.log(`Starting Crawle ${this.baseUrl}`);
     this.#crawler.queue({
       uri: url,
       callback: (err, res, done) => {
@@ -46,14 +46,12 @@ class CrawlerCls {
         }
       });
       const nextDepth = depth + 1;
-      //   for (let i = 0; i < links.length; i++) {
-      for (let i = 0; i < 2; i++) {
+      for (let i = 0; i < links.length; i++) {
+        //   for (let i = 0; i < 2; i++) {
         const link = links[i];
-        // console.log(depth, link);
-        // this.currentDepth++;
-        // this.baseUrl = link;
-        this.crawleUrl(link,nextDepth);
+        this.crawleUrl(link, nextDepth);
       }
+      if (nextDepth === this.maxDepth) this.lastLink = links[links.length - 1];
     }
     //images
     let images = $("img");
@@ -70,9 +68,11 @@ class CrawlerCls {
         ];
       }
     });
-    console.log(depth);
-    if (!depth) console.log(this.finalResult);
-    // else this.currentDepth--;
+
+    if (url === this.lastLink) {
+      fs.writeFileSync("./finalObj.json", JSON.stringify(this.finalResult, null, 2));
+      console.log("finished process");
+    }
   }
 }
 
