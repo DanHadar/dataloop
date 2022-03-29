@@ -4,9 +4,9 @@
 // const utils = require("./utils");
 
 const baseUrl = "https://www.ynet.co.il/";
-const depth = 0;
+const depth = 1;
 const CrawlerCls = require("./crawler");
 
 const c = new CrawlerCls(baseUrl, depth);
 c.crawleUrl();
-console.log("finished");
+// console.log(res);

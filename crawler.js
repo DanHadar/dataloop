@@ -4,22 +4,23 @@ class CrawlerCls {
   #crawler;
   constructor(url, depth) {
     this.#crawler = new Crawler();
-    this.url = url;
+    this.baseUrl = url;
     this.maxDepth = depth || 0;
     this.currentDepth = 0;
     this.finalResult = { results: [] };
+    this.finalLink = false;
   }
 
-  crawleUrl = () => {
-    console.log(`Starting Crawle ${this.url}`);
+  crawleUrl = (url = this.baseUrl, depth = this.currentDepth) => {
+    console.log(`Starting Crawle ${this.baseUrl}`);
     this.#crawler.queue({
-      uri: this.url,
+      uri: url,
       callback: (err, res, done) => {
         if (err) throw err;
         try {
-          this.getLinkAndImages(res.$);
+          this.getLinkAndImages(res.$, url, depth);
           done();
-          return this.finalResult;
+          //   console.log(this.finalResult);
         } catch (err) {
           console.log(err.message, err.stack);
           done();
@@ -28,22 +29,31 @@ class CrawlerCls {
     });
   };
 
-  getLinkAndImages($) {
-    if (this.currentDepth < this.maxDepth) {
+  getLinkAndImages($, url, depth) {
+    if (depth < this.maxDepth) {
+      let links = [];
       //recursive crawle links
       let urls = $("a");
       Object.keys(urls).forEach((item) => {
         const currentTag = urls[item];
-        let href = currentTag?.attribs?.href.trim();
+        let href = currentTag?.attribs?.href?.trim();
         if (
           currentTag.type === "tag" &&
-          href.startsWith(this.url)
+          href?.startsWith(this.baseUrl) &&
+          !links.includes(href)
         ) {
-          this.currentDepth++;
-          this.url = href;
-          this.crawleUrl();
+          links.push(href);
         }
       });
+      const nextDepth = depth + 1;
+      //   for (let i = 0; i < links.length; i++) {
+      for (let i = 0; i < 2; i++) {
+        const link = links[i];
+        // console.log(depth, link);
+        // this.currentDepth++;
+        // this.baseUrl = link;
+        this.crawleUrl(link,nextDepth);
+      }
     }
     //images
     let images = $("img");
@@ -54,13 +64,15 @@ class CrawlerCls {
           ...this.finalResult.results,
           {
             imageUrl: currentTag.attribs?.src,
-            sourceUrl: this.url,
-            depth: this.currentDepth,
+            sourceUrl: url,
+            depth,
           },
         ];
       }
     });
-    this.currentDepth--;
+    console.log(depth);
+    if (!depth) console.log(this.finalResult);
+    // else this.currentDepth--;
   }
 }
 
