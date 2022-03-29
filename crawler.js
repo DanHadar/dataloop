@@ -77,11 +77,12 @@ class CrawlerCls {
         }
       });
       if (url === this.lastLink || this.maxDepth === 0) {
-        console.log("finished process");
         fs.writeFileSync(
           "./finalObj.json",
           JSON.stringify(this.finalResult, null, 2)
         );
+        console.log(`total images: ${this.finalResult.results.length}`);
+        console.log("finished process");
       }
     } catch (err) {
       console.error(
